@@ -35,7 +35,7 @@ def get_distro():
         with open("/proc/version") as f:
             version = f.read().lower()
             if "android" in version:
-                return "Android (detected)"
+                return "Android"
     except FileNotFoundError:
         pass
     sysname = os.uname().sysname.lower()
