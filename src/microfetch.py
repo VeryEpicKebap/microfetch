@@ -2,7 +2,7 @@
 # | microfetch 0.4
 # | written by VeryEpicKebap - June 23rd 2025
 
-v="microfetch (version 0.3)"
+v="microfetch (version 0.4)"
 import os
 import argparse
 import subprocess
