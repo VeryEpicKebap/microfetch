@@ -1,16 +1,9 @@
 #!/usr/bin/python3
-# | microfetch 0.5.5
+# | microfetch 0.5.2
 # | written by VeryEpicKebap - June 23rd 2025
 
-v="microfetch (version 0.5)"
-import importlib.util
-import os
-import time
-import argparse
-import subprocess
-import sys
-import signal
-import configparser
+v="microfetch (version 0.5.2)"
+import os,time,sys,signal,configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
 names = [name.strip() for name in config["ITEMS"]["used"].split(',')]
@@ -58,8 +51,7 @@ def dc(distro_name):
     return distro_name
 dname=dc(get_distro())
 
-
-# revision 5.2: Android compatible CPU detection
+# revision 5.2: Android-compatible CPU detection
 def getcpu():
     try:
         with open("/proc/cpuinfo") as f:
@@ -83,8 +75,7 @@ def getcpu():
             return " (Mobile Processor)"
     return " (Unknown Processor)"
     
-    
-
+   
 def getmodel():
     try:
         with open("/sys/devices/virtual/dmi/id/product_name") as f:
@@ -119,7 +110,6 @@ def getmodel():
 
 model = getmodel()       
 cpui = getcpu()
-
 # revision 4: ascii art logos
 # logo-related parts of this program were hardcoded for use in Arch Linux only for now. future updates will bring logo support for a wide variety of distros.
 arch = [
@@ -131,7 +121,6 @@ arch = [
   r"    /   |  |   \  ",
   r"   /_-''    ''-_\ ",
 ]
-
 
 user=os.getlogin()
 # revision 3: simplified add-on system
@@ -150,13 +139,7 @@ class Md:
  spc = f"        " #blank block (for spacing between items)
  sep = f" └───────────────────\n" # seperator. literally the same as 'end'. no idea why i even added this one
 
-
 used = [getattr(Md, name) for name in names]
-
-
-
-
-
 def main():
     global dname
     uname = os.uname()
@@ -165,7 +148,6 @@ def main():
      a = arch[i] if i < len(arch) else ''
      b = used[i] if i < len(used) else ''
      print(f"\033[38;5;39m{a.ljust(width)}{RESET}",b)
-
 if __name__ == "__main__":
     if "-ch" in sys.argv:
      print(f"{v}\navailable display modules")
@@ -175,8 +157,6 @@ if __name__ == "__main__":
     elif "-v" in sys.argv:
      print(v)
     elif "-clean" in sys.argv:
-     os.system('clear');print("\033[?25l");main();signal.pause()
-
-   
+     os.system('clear');print("\033[?25l");main();signal.pause()   
     else:
      main()
