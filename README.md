@@ -5,4 +5,4 @@ ASCIIs are from the repository 'ffetch' by 0l3d.
 
 
 # Screenshots
-https://cdn.discordapp.com/attachments/1386076242255806628/1387706665327005706/2025-06-26_11-03.png?ex=685e520b&is=685d008b&hm=6884fc21abdd2cbb4e74ac39f32cca5aa2789c8cbae389c5b437f2092eb5fcb6&
+![Screenshot of Microfetch 0.5](https://cdn.discordapp.com/attachments/1371783823297089537/1375498387075371028/Baslksz102_20250523183835.png?ex=6831e833&is=683096b3&hm=2aa554e98f435e342f9ee41a676a3785ec8de56e51c5129ad904f95515a4e782&)
