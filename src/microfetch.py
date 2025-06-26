@@ -1,16 +1,21 @@
 #!/usr/bin/python3
-# | microfetch 0.4
+# | microfetch 0.5.5
 # | written by VeryEpicKebap - June 23rd 2025
 
-v="microfetch (version 0.4)"
+v="microfetch (version 0.5)"
+import importlib.util
 import os
+import time
 import argparse
 import subprocess
 import sys
-sys.path.insert(0,f"{os.getcwd}")
-from mfetch_config import *
-global used 
+import signal
+import configparser
+config = configparser.ConfigParser()
+config.read('config.ini')
+names = [name.strip() for name in config["ITEMS"]["used"].split(',')]
 RESET = "\033[0m"
+
 COLORS = {
     "Arch":     "\033[38;5;39m",     
     "Debian":   "\033[38;5;160m",   
@@ -52,34 +57,105 @@ def dc(distro_name):
             return COLORS[key] + distro_name + RESET
     return distro_name
 dname=dc(get_distro())
-with open("/sys/devices/virtual/dmi/id/product_name") as f:
-    model=f.read().strip()
 
-cpui=os.popen("grep -m1 -i 'model name' /proc/cpuinfo").read().strip().split(":", 1)[1]
+
+# revision 5.2: Android compatible CPU detection
+def getcpu():
+    try:
+        with open("/proc/cpuinfo") as f:
+            for line in f:
+                if line.lower().startswith(("model name", "hardware", "processor")):
+                    return line.split(":", 1)[1].strip()
+    except (FileNotFoundError, PermissionError):
+        pass
+    if os.path.exists("/system/build.prop"):
+        try:
+            proc = subprocess.run(["getprop", "ro.product.cpu.abi"], 
+                                capture_output=True, text=True)
+            if proc.returncode == 0:
+                return f" (ARM {proc.stdout.strip()})"
+            with open("/proc/cpuinfo") as f:
+                cpuinfo = f.read()
+                if "ARM" in cpuinfo:
+                    return " (ARM Processor)"
+                return " (Unknown ARM Processor)"
+        except:
+            return " (Mobile Processor)"
+    return " (Unknown Processor)"
+    
+    
+
+def getmodel():
+    try:
+        with open("/sys/devices/virtual/dmi/id/product_name") as f:
+            return f.read().strip()
+    except (FileNotFoundError, PermissionError):
+        pass
+    if os.path.exists("/system/build.prop"):
+        try:
+            proc = subprocess.run(
+                ["getprop", "ro.product.model"],
+                capture_output=True,
+                text=True
+            )
+            if proc.returncode == 0 and proc.stdout.strip():
+                return proc.stdout.strip()
+            for prop in ["ro.product.device", "ro.product.name", "ro.product.board"]:
+                proc = subprocess.run(
+                    ["getprop", prop],
+                    capture_output=True,
+                    text=True
+                )
+                if proc.returncode == 0 and proc.stdout.strip():
+                    return proc.stdout.strip()
+                    
+            return "Android Device"
+        except:
+            return "Mobile Device"
+    sysname = os.uname().sysname.lower()
+    if "bsd" in sysname:
+        return f"{os.uname().sysname} System"
+    return "Unknown Device"
+
+model = getmodel()       
+cpui = getcpu()
+
 # revision 4: ascii art logos
-# logo-related parts of this program were hardcoded for use in Arch Linux only. future updates will bring logo support for every distro detectable by this program.,
+# logo-related parts of this program were hardcoded for use in Arch Linux only for now. future updates will bring logo support for a wide variety of distros.
 arch = [
-  r"      _    ",
-  r"     / \   ",
-  r"    /   \  ",
-  r"   /  .  \ ",
-  r"  /._| |_.\ ",
+  r"         /\       ",
+  r"        /  \      ",
+  r"       /    \     ",
+  r"      /      \    ",
+  r"     /   ,,   \   ",
+  r"    /   |  |   \  ",
+  r"   /_-''    ''-_\ ",
 ]
 
 
 user=os.getlogin()
 # revision 3: simplified add-on system
 class Md:
- usr = f"  ------ {user} ------"
- end = f"  --------------------\n"
- dnc = f"  System: {get_distro()}"
- dcl = f"  System: {dname}"
- rel = f"  Kernel: {os.uname().release}"
- ver = f"  Version: {os.uname().version}"
- hos = f"  Host: {os.uname().nodename}"
- cpu = f"  CPU:{cpui}"
- mod = f"  Model: {model}"
-   
+ usr = f" ┌────── {user} ──────"
+ end = f" └───────────────────\n"
+ dnc = f" │ System: {get_distro()}"
+ dcl = f" │ System: {dname}"
+ rel = f" │ Kernel: {os.uname().release}"
+ ver = f" │ Version: {os.uname().version}"
+ hos = f" │ Host: {os.uname().nodename}"
+ cpu = f" │ CPU:{cpui}"
+ mod = f" │ Model: {model}"
+ us2 = f" │ User: {user}"
+ tst = f" │ TEST BLOCK"
+ spc = f"        " #blank block (for spacing between items)
+ sep = f" └───────────────────\n" # seperator. literally the same as 'end'. no idea why i even added this one
+
+
+used = [getattr(Md, name) for name in names]
+
+
+
+
 
 def main():
     global dname
@@ -98,5 +174,9 @@ if __name__ == "__main__":
        print(f"- {name}")
     elif "-v" in sys.argv:
      print(v)
+    elif "-clean" in sys.argv:
+     os.system('clear');print("\033[?25l");main();signal.pause()
+
+   
     else:
      main()
