@@ -5,4 +5,4 @@ ASCIIs are from the repository 'ffetch' by 0l3d.
 
 
 # Screenshots
-https://imgur.com/a/D4afPdv
+https://freeimage.host/i/FAHtAMl
