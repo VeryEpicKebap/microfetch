@@ -5,7 +5,7 @@
 v="microfetch (version 0.5.2)"
 import os,time,sys,signal,configparser
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read(['./config.ini', os.path.expanduser('~/.config/microfetch/config.ini'), '/etc/microfetch/config.ini'])
 names = [name.strip() for name in config["ITEMS"]["used"].split(',')]
 RESET = "\033[0m"
 
@@ -55,25 +55,13 @@ dname=dc(get_distro())
 def getcpu():
     try:
         with open("/proc/cpuinfo") as f:
-            for line in f:
-                if line.lower().startswith(("model name", "hardware", "processor")):
-                    return line.split(":", 1)[1].strip()
-    except (FileNotFoundError, PermissionError):
-        pass
-    if os.path.exists("/system/build.prop"):
-        try:
-            proc = subprocess.run(["getprop", "ro.product.cpu.abi"], 
-                                capture_output=True, text=True)
-            if proc.returncode == 0:
-                return f" (ARM {proc.stdout.strip()})"
-            with open("/proc/cpuinfo") as f:
-                cpuinfo = f.read()
-                if "ARM" in cpuinfo:
-                    return " (ARM Processor)"
-                return " (Unknown ARM Processor)"
-        except:
-            return " (Mobile Processor)"
-    return " (Unknown Processor)"
+            cpuin = f.read()
+            for line in cpuin.splitlines():
+             if line.lower().startswith("model name"):
+              return line.split(":",1)[1].strip()
+    except:
+        return "Unknown"
+   
     
    
 def getmodel():
@@ -125,19 +113,19 @@ arch = [
 user=os.getlogin()
 # revision 3: simplified add-on system
 class Md:
- usr = f" ┌────── {user} ──────"
- end = f" └───────────────────\n"
+ usr = f" ┌{max(2,len(user) + 2) * '─'} {user} {max(2,len(user) + 2) * '─'}"
+ end = f" └─────────────────────\n"
  dnc = f" │ System: {get_distro()}"
  dcl = f" │ System: {dname}"
  rel = f" │ Kernel: {os.uname().release}"
  ver = f" │ Version: {os.uname().version}"
  hos = f" │ Host: {os.uname().nodename}"
- cpu = f" │ CPU:{cpui}"
+ cpu = f" │ CPU: {cpui}"
  mod = f" │ Model: {model}"
  us2 = f" │ User: {user}"
  tst = f" │ TEST BLOCK"
  spc = f"        " #blank block (for spacing between items)
- sep = f" └───────────────────\n" # seperator. literally the same as 'end'. no idea why i even added this one
+ sep = f" └─────────────────────\n" # seperator. literally the same as 'end'. no idea why i even added this one
 
 used = [getattr(Md, name) for name in names]
 def main():
